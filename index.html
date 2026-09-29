@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aadhaar Card Processing System</title>
+    <link rel="stylesheet" href="{{ url_for('style') }}">
+</head>
+<body>
+
+<header>
+    <h1>🪪 Aadhaar Card Processing System</h1>
+    <p>Citizen Registration &amp; Aadhaar Management Portal</p>
+</header>
+
+<nav>
+    <a href="#home">Home</a>
+    <a href="#register">Register Citizen</a>
+    <a href="#application">Apply Aadhaar</a>
+    <a href="#verification">Verification</a>
+    <a href="#status">Application Status</a>
+    <a href="#search">Search Citizen</a>
+    <a href="#updates">Update Details</a>
+    <a href="#reports">Reports</a>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="messages">
+        {% for category, message in messages %}
+            <div class="message {{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
+
+<section id="home" class="hero">
+    <h2>Welcome to Aadhaar Processing System</h2>
+    <p>
+        A simple system to manage citizen registration,
+        Aadhaar applications, document verification and updates.
+    </p>
+    <a href="#register" class="btn">Get Started</a>
+</section>
+
+<section class="cards">
+    <a class="card" href="#register">
+        <h2>👥</h2>
+        <h3>Citizen Registration</h3>
+        <p>Register and maintain citizen details.</p>
+    </a>
+
+    <a class="card" href="#application">
+        <h2>📄</h2>
+        <h3>Aadhaar Application</h3>
+        <p>Apply for a new Aadhaar card.</p>
+    </a>
+
+    <a class="card" href="#verification">
+        <h2>✅</h2>
+        <h3>Document Verification</h3>
+        <p>Verify submitted citizen documents.</p>
+    </a>
+
+    <a class="card" href="#status">
+        <h2>🔍</h2>
+        <h3>Application Status</h3>
+        <p>Check the current application status.</p>
+    </a>
+</section>
+
+<section id="register" class="section">
+    <h2>Register Citizen</h2>
+    <form action="{{ url_for('register') }}" method="POST">
+        <div class="form-grid">
+            <input type="text" name="name" placeholder="Citizen Name" required>
+            <input type="date" name="dob" required>
+
+            <select name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <input type="tel" name="phone" placeholder="Phone Number" pattern="[0-9]{10}" maxlength="10" required>
+            <input type="text" name="address" placeholder="Address" required>
+            <input type="text" name="city" placeholder="City" required>
+            <input type="text" name="state" placeholder="State" required>
+        </div>
+        <button type="submit">Register Citizen</button>
+    </form>
+</section>
+
+<section id="application" class="section">
+    <h2>Apply for Aadhaar</h2>
+    <form action="{{ url_for('apply_aadhaar') }}" method="POST">
+        <input type="number" name="citizen_id" placeholder="Citizen ID" min="1" required>
+        <input type="text" name="application_type" placeholder="Application Type (New / Update / Reprint)" required>
+        <input type="date" name="application_date" required>
+        <button type="submit">Submit Application</button>
+    </form>
+</section>
+
+<section id="verification" class="section">
+    <h2>Document Verification</h2>
+    <form action="{{ url_for('verify_documents') }}" method="POST">
+        <input type="number" name="application_id" placeholder="Application ID" min="1" required>
+
+        <select name="verification_result" required>
+            <option value="">Select Verification Result</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+        </select>
+
+        <input type="text" name="remarks" placeholder="Remarks">
+        <button type="submit">Verify Documents</button>
+    </form>
+</section>
+
+<section id="status" class="section">
+    <h2>Application Status</h2>
+    <form action="{{ url_for('application_status') }}" method="GET">
+        <input type="number" name="application_id" placeholder="Enter Application ID" min="1" required>
+        <button type="submit">Check Status</button>
+    </form>
+
+    {% if status_result %}
+    <div class="result-card">
+        <h3>Application Details</h3>
+        <div class="details-grid">
+            <p><strong>Application ID:</strong> {{ status_result.application_id }}</p>
+            <p><strong>Citizen Name:</strong> {{ status_result.citizen_name }}</p>
+            <p><strong>Application Type:</strong> {{ status_result.application_type }}</p>
+            <p><strong>Application Date:</strong> {{ status_result.application_date }}</p>
+            <p><strong>Application Status:</strong> {{ status_result.application_status or 'Pending' }}</p>
+            <p><strong>Verification Result:</strong> {{ status_result.verification_result or 'Not Verified' }}</p>
+            <p class="full-width"><strong>Remarks:</strong> {{ status_result.remarks or 'No remarks' }}</p>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<section id="search" class="section">
+    <h2>Search Citizen</h2>
+    <form action="{{ url_for('search_citizen') }}" method="GET">
+        <input type="number" name="citizen_id" placeholder="Enter Citizen ID" min="1" required>
+        <button type="submit">Search Citizen</button>
+    </form>
+
+    {% if citizen_result %}
+    <div class="result-card">
+        <h3>Citizen Details</h3>
+        <div class="details-grid">
+            <p><strong>Citizen ID:</strong> {{ citizen_result.citizen_id }}</p>
+            <p><strong>Name:</strong> {{ citizen_result.name }}</p>
+            <p><strong>DOB:</strong> {{ citizen_result.date_of_birth }}</p>
+            <p><strong>Gender:</strong> {{ citizen_result.gender }}</p>
+            <p><strong>Phone:</strong> {{ citizen_result.phone }}</p>
+            <p><strong>Address:</strong> {{ citizen_result.address }}</p>
+            <p><strong>City:</strong> {{ citizen_result.city }}</p>
+            <p><strong>State:</strong> {{ citizen_result.state }}</p>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<section id="updates" class="section">
+    <h2>Update Aadhaar Details</h2>
+    <form action="{{ url_for('update_request') }}" method="POST">
+        <input type="number" name="citizen_id" placeholder="Citizen ID" min="1" required>
+
+        <select name="update_type" required>
+            <option value="">Select Update Type</option>
+            <option value="Address">Address</option>
+            <option value="Phone Number">Phone Number</option>
+        </select>
+
+        <input type="text" name="new_value" placeholder="Enter New Value" required>
+        <button type="submit">Submit Update Request</button>
+    </form>
+</section>
+
+<section id="reports" class="section reports-section">
+    <h2>Application Reports</h2>
+
+    <div class="report">
+        <div>
+            <h3>{{ counts.total }}</h3>
+            <p>Total Applications</p>
+        </div>
+
+        <div>
+            <h3>{{ counts.approved }}</h3>
+            <p>Approved</p>
+        </div>
+
+        <div>
+            <h3>{{ counts.pending }}</h3>
+            <p>Pending</p>
+        </div>
+
+        <div>
+            <h3>{{ counts.rejected }}</h3>
+            <p>Rejected</p>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Application ID</th>
+                    <th>Citizen Name</th>
+                    <th>Application Type</th>
+                    <th>Application Date</th>
+                    <th>Application Status</th>
+                    <th>Verification Result</th>
+                    <th>Remarks</th>
+                    <th>Aadhaar Number</th>
+                    <th>Issue Date</th>
+                    <th>Card Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if reports %}
+                    {% for row in reports %}
+                    <tr>
+                        <td>{{ row.application_id }}</td>
+                        <td>{{ row.citizen_name }}</td>
+                        <td>{{ row.application_type }}</td>
+                        <td>{{ row.application_date }}</td>
+                        <td>{{ row.application_status or 'Pending' }}</td>
+                        <td>{{ row.verification_result or 'Not Verified' }}</td>
+                        <td>{{ row.remarks or '-' }}</td>
+                        <td>{{ row.aadhaar_number or '-' }}</td>
+                        <td>{{ row.issue_date or '-' }}</td>
+                        <td>{{ row.card_status or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="10" class="no-data">No application records found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 Aadhaar Card Processing System</p>
+    <p>Database Management System Project</p>
+</footer>
+
+</body>
+</html>
